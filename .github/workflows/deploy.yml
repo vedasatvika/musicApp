@@ -32,8 +32,10 @@ jobs:
         env:
           GITHUB_PAGES: 'true'
           # Public anon key — safe to expose; access is controlled by RLS.
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Accept the values whether they were added as Actions *secrets* or
+          # *variables* (both are valid places; this avoids a common mixup).
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || vars.VITE_SUPABASE_ANON_KEY }}
 
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
