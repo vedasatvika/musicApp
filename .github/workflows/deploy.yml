@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+# Builds the app and publishes it to the `gh-pages` branch, which GitHub Pages
+# serves as a public website.
+on:
+  push:
+    branches: [claude/music-ranking-app-tcxqej, main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
