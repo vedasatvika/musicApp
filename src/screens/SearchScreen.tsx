@@ -7,7 +7,7 @@ import { useStore } from '../store'
 import { Cover, ScoreBadge } from '../components/ui'
 
 export function SearchScreen({ onRank }: { onRank: (item: CatalogItem) => void }) {
-  const { currentUser } = useStore()
+  const { myRankings } = useStore()
   const [query, setQuery] = useState('')
   const [scope, setScope] = useState<SearchScope>('all')
   const [results, setResults] = useState<CatalogItem[]>([])
@@ -16,8 +16,8 @@ export function SearchScreen({ onRank }: { onRank: (item: CatalogItem) => void }
   const reqId = useRef(0)
 
   const rankedById = useMemo(
-    () => new Map(currentUser.rankings.map((r) => [r.itemId, r])),
-    [currentUser.rankings],
+    () => new Map(myRankings.map((r) => [r.itemId, r])),
+    [myRankings],
   )
 
   useEffect(() => {

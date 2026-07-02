@@ -17,14 +17,14 @@ import type { CompareState } from '../lib/ranking'
 type Step = 'sentiment' | 'details' | 'compare'
 
 export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => void }) {
-  const { currentUser, commitRanking, getItem } = useStore()
+  const { myRankings, commitRanking, getItem } = useStore()
   const [step, setStep] = useState<Step>('sentiment')
   const [sentiment, setSentiment] = useState<Sentiment | null>(null)
   const [tags, setTags] = useState<Tag[]>([])
   const [note, setNote] = useState('')
   const [compare, setCompare] = useState<CompareState | null>(null)
 
-  const existing = currentUser.rankings.find((r) => r.itemId === item.id)
+  const existing = myRankings.find((r) => r.itemId === item.id)
 
   function toggleTag(t: Tag) {
     setTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
@@ -38,11 +38,11 @@ export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => 
   function startCompare() {
     if (!sentiment) return
     // Pool = items already in this bucket, best → worst, excluding this item.
-    const pool = sortRankings(currentUser.rankings)
+    const pool = sortRankings(myRankings)
       .filter((r) => r.sentiment === sentiment && r.itemId !== item.id)
       .map((r) => r.itemId)
     if (pool.length === 0) {
-      commitRanking({ item, sentiment, tags, bucketIndex: 0, note })
+      void commitRanking({ item, sentiment, tags, bucketIndex: 0, note })
       onClose()
       return
     }
@@ -54,7 +54,7 @@ export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => 
     if (!compare || !sentiment) return
     const next = applyComparison(compare, preferredNew)
     if (nextOpponent(next) === null) {
-      commitRanking({ item, sentiment, tags, bucketIndex: insertionIndex(next), note })
+      void commitRanking({ item, sentiment, tags, bucketIndex: insertionIndex(next), note })
       onClose()
     } else {
       setCompare(next)

@@ -77,6 +77,19 @@ export function recomputeScores(rankings: Ranking[]): Ranking[] {
 }
 
 /**
+ * Compute a new sort key for an item being inserted at `index` within a bucket
+ * that is already sorted best → worst. Higher key = ranked better. Uses
+ * midpoint (fractional) indexing so we never have to renumber siblings.
+ */
+export function computeInsertSortKey(bucketBestToWorst: Ranking[], index: number): number {
+  const n = bucketBestToWorst.length
+  if (n === 0) return 0
+  if (index <= 0) return bucketBestToWorst[0].sortKey + 1
+  if (index >= n) return bucketBestToWorst[n - 1].sortKey - 1
+  return (bucketBestToWorst[index - 1].sortKey + bucketBestToWorst[index].sortKey) / 2
+}
+
+/**
  * The comparison flow. Given the items already ranked in a bucket (sorted best
  * → worst) and a binary-search cursor, decide the next opponent or the final
  * insertion index. This mirrors Beli's "which did you like more?" placement.

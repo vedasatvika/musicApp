@@ -40,16 +40,32 @@ export interface Ranking {
   tags: Tag[]
   /** 0–10 score derived from the item's position within its sentiment band. */
   score: number
+  /** Ordering key within the sentiment bucket; higher = ranked better. */
+  sortKey: number
   /** ISO timestamp of when it was ranked (for the feed). */
   rankedAt: string
   note?: string
 }
 
-export interface User {
+/** A public user profile. */
+export interface Profile {
   id: string
   name: string
   handle: string
   avatarHue: number
+}
+
+/** A user plus their rankings (used for profile views + compatibility). */
+export interface User extends Profile {
   /** Ordered best → worst. Index 0 is this user's #1. */
   rankings: Ranking[]
+}
+
+/** Relationship of another user to the current user. */
+export type FriendStatus = 'none' | 'friends' | 'incoming' | 'outgoing'
+
+/** An incoming friend request with the sender's profile. */
+export interface FriendRequest {
+  id: string
+  from: Profile
 }

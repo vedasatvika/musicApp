@@ -396,6 +396,207 @@ button {
   }
 }
 
+.spinner.big {
+  width: 34px;
+  height: 34px;
+  border-width: 3px;
+}
+
+.center-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Auth ---------- */
+.auth-wrap {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 30px 22px;
+  text-align: center;
+}
+
+.auth-logo {
+  font-size: 34px;
+  margin: 0;
+}
+
+.auth-tag {
+  margin: 4px 0 22px;
+}
+
+.auth-seg {
+  margin-bottom: 18px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.text-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  padding: 13px 14px;
+  outline: none;
+}
+
+.text-input:focus {
+  border-color: var(--accent-2);
+}
+
+.handle-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.handle-at {
+  position: absolute;
+  left: 14px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.handle-input {
+  padding-left: 30px;
+}
+
+.auth-error {
+  color: #ef6d5b;
+  font-size: 13px;
+  margin: 2px;
+}
+
+.auth-notice {
+  color: #3ecf8e;
+  font-size: 13px;
+  margin: 2px;
+}
+
+.config-msg {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 14px;
+}
+
+.config-msg code {
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 5px;
+  color: var(--accent-2);
+  font-size: 12px;
+}
+
+/* ---------- Friends / people ---------- */
+.person-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.status-pill {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-pill.friends {
+  color: #3ecf8e;
+  border-color: rgba(62, 207, 142, 0.4);
+}
+
+.profile-action {
+  margin-top: 14px;
+  background: linear-gradient(120deg, var(--accent-2), #f0abfc);
+  color: #0c0c10;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 11px 22px;
+  border-radius: 999px;
+}
+
+.profile-action.ghost {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.action-pair {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.signout {
+  position: absolute;
+  right: 0;
+  top: 18px;
+}
+
+/* ---------- Tab badge ---------- */
+.tab-icon {
+  position: relative;
+}
+
+.tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef6d5b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Empty feed ---------- */
+.empty-feed {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.empty-emoji {
+  font-size: 46px;
+}
+
+.empty-title {
+  font-weight: 800;
+  font-size: 17px;
+  margin: 14px 0 4px;
+}
+
 /* ---------- Profile ---------- */
 .profile-header {
   display: flex;

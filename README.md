@@ -67,9 +67,13 @@ src/
   App.tsx               # phone shell + bottom tab bar
 ```
 
-## Where a real backend would plug in
+## Accounts + friends (Supabase)
 
-`src/store.tsx` is the single source of truth. Swapping `localStorage` for an
-API (auth, a music-metadata provider like Spotify/Apple Music for the catalog,
-and a social graph for real friends) is the natural next step, and would let
-this ship to the App Store via Expo/Capacitor.
+Tempo has a real backend: email/password accounts, friend requests, and a shared
+database via [Supabase](https://supabase.com). Follow **[SETUP-SUPABASE.md](./SETUP-SUPABASE.md)**
+to connect it (one-time, ~10 min, free). Until it's connected the app shows a
+"not connected" screen. The database schema lives in
+[`supabase/schema.sql`](./supabase/schema.sql).
+
+Song/album search is powered live by the iTunes Search API (see
+`src/lib/musicApi.ts`), so the catalog isn't limited to a seed list.
