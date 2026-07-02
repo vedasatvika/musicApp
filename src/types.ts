@@ -12,9 +12,11 @@ export interface CatalogItem {
   title: string
   artist: string
   year: number
-  /** Used to generate a deterministic gradient "cover". */
+  /** Used to generate a deterministic gradient "cover" (fallback art). */
   hue: number
   emoji: string
+  /** Real cover art URL when the item comes from the music API. */
+  artworkUrl?: string
 }
 
 /** Preset context tags a user can attach to a ranked item. */

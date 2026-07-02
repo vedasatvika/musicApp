@@ -1,27 +1,47 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { Ranking, Sentiment, Tag, User } from './types'
+import type { CatalogItem, Ranking, Sentiment, Tag, User } from './types'
 import { recomputeScores, SENTIMENTS, sortRankings } from './lib/ranking'
+import { CATALOG } from './data/catalog'
 import { CURRENT_USER_ID, FOLLOWING, seedUsers } from './data/seed'
 
 const STORAGE_KEY = 'tempo.state.v1'
 
+/** Registry of all item metadata we know about, keyed by id. */
+type Catalog = Record<string, CatalogItem>
+
 interface PersistedState {
   users: User[]
+  /** Items ranked from the live search, cached so they resolve after reload. */
+  catalog: Catalog
+}
+
+function seedCatalog(): Catalog {
+  const c: Catalog = {}
+  for (const item of CATALOG) c[item.id] = item
+  return c
 }
 
 function load(): PersistedState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as PersistedState
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<PersistedState>
+      return {
+        users: parsed.users ?? seedUsers(),
+        // Seed catalog always merged in so built-in items are never missing.
+        catalog: { ...seedCatalog(), ...(parsed.catalog ?? {}) },
+      }
+    }
   } catch {
     // corrupt storage — fall through to seed
   }
-  return { users: seedUsers() }
+  return { users: seedUsers(), catalog: seedCatalog() }
 }
 
 interface CommitArgs {
-  itemId: string
+  /** Full item metadata, so it can be registered in the catalog. */
+  item: CatalogItem
   sentiment: Sentiment
   tags: Tag[]
   /** 0-based insertion index *within the target sentiment bucket*. */
@@ -38,27 +58,34 @@ interface StoreValue {
   removeRanking: (itemId: string) => void
   resetAll: () => void
   getUser: (id: string) => User | undefined
+  /** Resolve item metadata by id (built-in seed items or ranked API items). */
+  getItem: (id: string) => CatalogItem | undefined
 }
 
 const StoreContext = createContext<StoreValue | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(() => load().users)
+  const initial = load()
+  const [users, setUsers] = useState<User[]>(initial.users)
+  const [catalog, setCatalog] = useState<Catalog>(initial.catalog)
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ users }))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ users, catalog }))
     } catch {
       // ignore quota / private-mode errors
     }
-  }, [users])
+  }, [users, catalog])
 
   const commitRanking = useCallback((args: CommitArgs) => {
+    // Register the item so the feed / profile / Top 10 can resolve it later.
+    setCatalog((prev) => ({ ...prev, [args.item.id]: args.item }))
+
     setUsers((prev) =>
       prev.map((u) => {
         if (u.id !== CURRENT_USER_ID) return u
         // Drop any existing ranking for this item, keep the rest sorted.
-        const others = sortRankings(u.rankings.filter((rk) => rk.itemId !== args.itemId))
+        const others = sortRankings(u.rankings.filter((rk) => rk.itemId !== args.item.id))
 
         // Split into buckets in canonical order so recomputeScores lines up.
         const byBucket = new Map<Sentiment, Ranking[]>()
@@ -66,7 +93,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         for (const rk of others) byBucket.get(rk.sentiment)!.push(rk)
 
         const fresh: Ranking = {
-          itemId: args.itemId,
+          itemId: args.item.id,
           sentiment: args.sentiment,
           tags: args.tags,
           score: 0,
@@ -94,7 +121,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  const resetAll = useCallback(() => setUsers(seedUsers()), [])
+  const resetAll = useCallback(() => {
+    setUsers(seedUsers())
+    setCatalog(seedCatalog())
+  }, [])
 
   const value = useMemo<StoreValue>(() => {
     const currentUser = users.find((u) => u.id === CURRENT_USER_ID)!
@@ -109,8 +139,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       removeRanking,
       resetAll,
       getUser: (id: string) => users.find((u) => u.id === id),
+      getItem: (id: string) => catalog[id],
     }
-  }, [users, commitRanking, removeRanking, resetAll])
+  }, [users, catalog, commitRanking, removeRanking, resetAll])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }

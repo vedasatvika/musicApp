@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { CatalogItem, Sentiment, Tag } from '../types'
 import { ALL_TAGS } from '../types'
-import { getItem } from '../data/catalog'
 import { useStore } from '../store'
 import {
   applyComparison,
@@ -18,7 +17,7 @@ import type { CompareState } from '../lib/ranking'
 type Step = 'sentiment' | 'details' | 'compare'
 
 export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => void }) {
-  const { currentUser, commitRanking } = useStore()
+  const { currentUser, commitRanking, getItem } = useStore()
   const [step, setStep] = useState<Step>('sentiment')
   const [sentiment, setSentiment] = useState<Sentiment | null>(null)
   const [tags, setTags] = useState<Tag[]>([])
@@ -43,7 +42,7 @@ export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => 
       .filter((r) => r.sentiment === sentiment && r.itemId !== item.id)
       .map((r) => r.itemId)
     if (pool.length === 0) {
-      commitRanking({ itemId: item.id, sentiment, tags, bucketIndex: 0, note })
+      commitRanking({ item, sentiment, tags, bucketIndex: 0, note })
       onClose()
       return
     }
@@ -55,7 +54,7 @@ export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => 
     if (!compare || !sentiment) return
     const next = applyComparison(compare, preferredNew)
     if (nextOpponent(next) === null) {
-      commitRanking({ itemId: item.id, sentiment, tags, bucketIndex: insertionIndex(next), note })
+      commitRanking({ item, sentiment, tags, bucketIndex: insertionIndex(next), note })
       onClose()
     } else {
       setCompare(next)
@@ -87,7 +86,7 @@ export function RankFlow({ item, onClose }: { item: CatalogItem; onClose: () => 
         {step === 'compare' && compare && sentiment && (
           <CompareStep
             item={item}
-            opponentId={nextOpponent(compare)!}
+            opponent={getItem(nextOpponent(compare)!)}
             sentiment={sentiment}
             onPick={pick}
           />
@@ -197,16 +196,15 @@ function DetailsStep({
 
 function CompareStep({
   item,
-  opponentId,
+  opponent,
   sentiment,
   onPick,
 }: {
   item: CatalogItem
-  opponentId: string
+  opponent: CatalogItem | undefined
   sentiment: Sentiment
   onPick: (preferredNew: boolean) => void
 }) {
-  const opponent = getItem(opponentId)
   const meta = sentimentMeta(sentiment)
   // A little context on how many comparisons remain isn't shown, keeping it
   // feeling like a quick gut-check the way Beli does.

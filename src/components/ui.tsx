@@ -1,15 +1,28 @@
 import type { CatalogItem, Tag } from '../types'
 import { scoreColor } from '../lib/ranking'
 
-/** Deterministic gradient "cover" for an item, with its emoji. */
+/** Cover art for an item: real artwork when available, else a gradient. */
 export function Cover({ item, size = 52 }: { item: CatalogItem; size?: number }) {
   const h = item.hue
+  const radius = item.type === 'song' ? '50%' : Math.round(size * 0.22)
   const style: React.CSSProperties = {
     width: size,
     height: size,
-    borderRadius: item.type === 'song' ? '50%' : 12,
+    borderRadius: radius,
     background: `linear-gradient(140deg, hsl(${h} 70% 55%), hsl(${(h + 45) % 360} 65% 38%))`,
     fontSize: size * 0.42,
+  }
+  if (item.artworkUrl) {
+    return (
+      <img
+        className="cover"
+        style={{ width: size, height: size, borderRadius: radius, objectFit: 'cover' }}
+        src={item.artworkUrl}
+        alt=""
+        loading="lazy"
+        aria-hidden
+      />
+    )
   }
   return (
     <div className="cover" style={style} aria-hidden>

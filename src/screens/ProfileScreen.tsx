@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { CatalogItem, Ranking, Tag } from '../types'
 import { ALL_TAGS } from '../types'
-import { getItem } from '../data/catalog'
 import { useStore } from '../store'
 import { compatibility } from '../lib/compatibility'
 import { scoreColor, sentimentMeta, sortRankings } from '../lib/ranking'
@@ -120,6 +119,7 @@ export function ProfileScreen({
 }
 
 function Top10Row({ rank, ranking }: { rank: number; ranking: Ranking }) {
+  const { getItem } = useStore()
   const item = getItem(ranking.itemId)
   if (!item) return null
   return (
@@ -144,6 +144,7 @@ function RankRow({
   onRank?: (item: CatalogItem) => void
   onRemove?: () => void
 }) {
+  const { getItem } = useStore()
   const item = getItem(ranking.itemId)
   if (!item) return null
   const meta = sentimentMeta(ranking.sentiment)

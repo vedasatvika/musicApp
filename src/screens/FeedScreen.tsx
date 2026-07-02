@@ -1,5 +1,4 @@
 import { useStore } from '../store'
-import { getItem } from '../data/catalog'
 import { sentimentMeta } from '../lib/ranking'
 import { timeAgo } from '../lib/format'
 import { Avatar, Cover, ScoreBadge, TagChip } from '../components/ui'
@@ -47,6 +46,7 @@ function FeedCard({
   ranking: Ranking
   onOpenProfile: (id: string) => void
 }) {
+  const { getItem } = useStore()
   const item = getItem(ranking.itemId)
   if (!item) return null
   const meta = sentimentMeta(ranking.sentiment)
